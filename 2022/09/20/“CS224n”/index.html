@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha256-xejo6yLi6vGtAjcMIsY8BHdKsLg7QynVlFMzdQgUuy8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.12.3","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="学习路线：NLP + 图神经网络 + 知识图谱 全新的学习路线，提出问题，自我解决问题的思维模式。 本篇笔记将会摘抄所有的知识点，以进行知识拓展和学习。包括相关的数学知识，也要进行多次补充。请不要畏难！ 1 Introduction and word vectorsLing 284">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CS224n学习笔记">
+<meta property="og:url" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/index.html">
+<meta property="og:site_name" content="Leiouisacat">
+<meta property="og:description" content="学习路线：NLP + 图神经网络 + 知识图谱 全新的学习路线，提出问题，自我解决问题的思维模式。 本篇笔记将会摘抄所有的知识点，以进行知识拓展和学习。包括相关的数学知识，也要进行多次补充。请不要畏难！ 1 Introduction and word vectorsLing 284">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920093050006.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920093545793.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920094010991.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920094348143.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920094504687.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920094542430.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920094959115.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920095313318.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920095425101.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920101133655.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920101623556.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920101654383.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920102154856.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920102425780.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920113017052.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920125851916.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920130809766.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920131058842.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920133826011.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921124449491.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921095527002.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921100046062.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921101647658.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921102112090.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921102445901.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921103812719.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921104154303.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921105252787.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921125326309.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921125907085.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921130350145.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921135040275.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921135304249.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921135412961.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921143942551.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921144821185.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921145939680.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921150254741.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220923103150667.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220923135059407.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220923135020524.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220923140218450.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220923140554920.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926105556019.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926110629462.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926111445388.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926124509173.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926125221872.png">
+<meta property="og:image" content="http://example.com/%E2%80%9CCS224n%E2%80%9D/image-20220926223011187.png">
+<meta property="og:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926223206911.png">
+<meta property="article:published_time" content="2022-09-20T01:02:36.000Z">
+<meta property="article:modified_time" content="2022-09-27T08:30:27.208Z">
+<meta property="article:author" content="Leiouisacat">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920093050006.png">
+
+
+<link rel="canonical" href="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/","path":"2022/09/20/“CS224n”/","title":"CS224n学习笔记"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>CS224n学习笔记 | Leiouisacat</title>
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Leiouisacat</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Introduction-and-word-vectors"><span class="nav-number">1.</span> <span class="nav-text">1 Introduction and word vectors</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Assignment-1"><span class="nav-number">2.</span> <span class="nav-text">Assignment 1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Assignment-2"><span class="nav-number">3.</span> <span class="nav-text">Assignment 2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-Word-Vectors-and-Word-Senses"><span class="nav-number">4.</span> <span class="nav-text">2 Word Vectors and Word Senses</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-But-why-not-capture-co-occurence-counts-directly"><span class="nav-number">4.1.</span> <span class="nav-text">3 But why not capture co-occurence counts directly?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Count-based-vs-direct-predition"><span class="nav-number">4.2.</span> <span class="nav-text">Count based vs. direct predition</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GloVe%E6%A8%A1%E5%9E%8B"><span class="nav-number">4.3.</span> <span class="nav-text">GloVe模型</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-Neural-Networks"><span class="nav-number">5.</span> <span class="nav-text">3 Neural Networks</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-Classification-setup-and-notation"><span class="nav-number">5.1.</span> <span class="nav-text">3.1 Classification setup and notation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-1-Classification-intuition"><span class="nav-number">5.1.1.</span> <span class="nav-text">3.1.1 Classification intuition</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-2-Details-of-the-softmax-classifier"><span class="nav-number">5.1.2.</span> <span class="nav-text">3.1.2 Details of the softmax classifier</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-3-Training-with-softmax-and-cross-entropy-loss"><span class="nav-number">5.1.3.</span> <span class="nav-text">3.1.3 Training with softmax and cross-entropy loss</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-4-Classicication-over-a-full-dataset"><span class="nav-number">5.1.4.</span> <span class="nav-text">3.1.4 Classicication over a full dataset</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-5-Traditional-ML-optimization"><span class="nav-number">5.1.5.</span> <span class="nav-text">3.1.5 Traditional ML optimization</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Neural-Networks-Classifiers"><span class="nav-number">5.2.</span> <span class="nav-text">4 Neural Networks Classifiers</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-Classification-difference-with-word-vectors"><span class="nav-number">5.2.1.</span> <span class="nav-text">4.1 Classification difference with word vectors</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-Neural-computation"><span class="nav-number">5.2.2.</span> <span class="nav-text">4.2 Neural computation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E9%9D%9E%E7%BA%BF%E6%80%A7%E5%B1%82%EF%BC%9F"><span class="nav-number">5.2.3.</span> <span class="nav-text">4.3 为什么需要非线性层？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-Named-Entity-Recognition-NER"><span class="nav-number">5.3.</span> <span class="nav-text">5 Named Entity Recognition(NER)</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5-%E5%8F%8D%E5%90%91%E4%BC%A0%E6%92%ADback-propagation"><span class="nav-number">6.</span> <span class="nav-text">5 反向传播back propagation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#5-1-Derivate-wrt-a-weight-matrix"><span class="nav-number">6.1.</span> <span class="nav-text">5.1 Derivate wrt a weight matrix</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#6-Dependency-parsing"><span class="nav-number">7.</span> <span class="nav-text">6 Dependency parsing</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#6-1-Syntactic-Structure-Consistency-and-Dependency"><span class="nav-number">7.1.</span> <span class="nav-text">6.1 Syntactic Structure: Consistency and Dependency</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AF%B9%E4%BA%8E%E8%AF%AD%E8%A8%80%E7%BB%93%E6%9E%84%E7%9A%84%E4%B8%A4%E4%B8%AA%E8%A7%82%E7%82%B9"><span class="nav-number">7.1.1.</span> <span class="nav-text">1 对于语言结构的两个观点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-2-Dependency-Grammar-and-Treebanks"><span class="nav-number">7.2.</span> <span class="nav-text">6.2 Dependency Grammar and Treebanks</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-3-Transition-based-dependency-parsing"><span class="nav-number">7.3.</span> <span class="nav-text">6.3 Transition-based dependency parsing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-4-Neual-Dependency-parsing"><span class="nav-number">7.4.</span> <span class="nav-text">6.4 Neual Dependency parsing</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Leiouisacat"
+      src="/images/hp.jpeg">
+  <p class="site-author-name" itemprop="name">Leiouisacat</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/leiouisacat" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;leiouisacat" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:leiouisacat@gmail.com" title="E-Mail → mailto:leiouisacat@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/leiouisacat" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/09/20/%E2%80%9CCS224n%E2%80%9D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hp.jpeg">
+      <meta itemprop="name" content="Leiouisacat">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Leiouisacat">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="CS224n学习笔记 | Leiouisacat">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CS224n学习笔记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-09-20 09:02:36" itemprop="dateCreated datePublished" datetime="2022-09-20T09:02:36+08:00">2022-09-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-09-27 16:30:27" itemprop="dateModified" datetime="2022-09-27T16:30:27+08:00">2022-09-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>学习路线：NLP + 图神经网络 + 知识图谱</p>
+<p>全新的学习路线，提出问题，自我解决问题的思维模式。</p>
+<p>本篇笔记将会摘抄所有的知识点，以进行知识拓展和学习。包括相关的数学知识，也要进行多次补充。请不要畏难！</p>
+<h1 id="1-Introduction-and-word-vectors"><a href="#1-Introduction-and-word-vectors" class="headerlink" title="1 Introduction and word vectors"></a>1 Introduction and word vectors</h1><p>Ling 284</p>
+<p>知识图谱其实是NLP技术的一个分支。哈哈，会更多的使用Pytorch！GPU的扩展和并行说强大的驱动力！</p>
+<p>human language and word meaning </p>
+<p>语言是光荣的混乱。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920093050006.png" alt="image-20220920093050006" style="zoom:50%;">
+
+<p>通过语言的符号，联想到到对应的语意，如具体的事物和一些想法。💡</p>
+<p>WordNet具有一定的局限性。</p>
+<p>离散的同义词定义。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920093545793.png" alt="image-20220920093545793" style="zoom:50%;">
+
+<p>one hot 向量表示。语言会有很多很多的单词，用onehot表示会变得越来越长。</p>
+<p>但实际上，语言可以通过前后缀相互变形。寻找单词语意上的相似之处。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920094010991.png" alt="image-20220920094010991" style="zoom:50%;">
+
+<p>通过上下文来表示语意。分布式语意。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920094348143.png" alt="image-20220920094348143" style="zoom:50%;">
+
+<p>变成一个密集的向量，会很少出现0。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920094504687.png" alt="image-20220920094504687" style="zoom:50%;">
+
+<p>将所有的单词映射到空间里面去。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920094542430.png" alt="image-20220920094542430" style="zoom:50%;">
+
+<p>难以可视化100维的向量，上面是投射到了二维平面上。</p>
+<p>Word2vc</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920094959115.png" alt="image-20220920094959115" style="zoom:50%;">
+
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920095313318.png" alt="image-20220920095313318" style="zoom:50%;">
+
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920095425101.png" alt="image-20220920095425101" style="zoom:50%;">
+
+<p>通过修改单词的矢量表示来减小上述公式。通过中心词来预测上下文的单词出现的概率。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920101133655.png" alt="image-20220920101133655" style="zoom:50%;">
+
+<p>给给一个单词设定两个向量，$u_w$和$v_w$。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920101623556.png" alt="image-20220920101623556" style="zoom:50%;">
+
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920101654383.png" alt="image-20220920101654383" style="zoom:50%;">
+
+<p>只要稍加留神的求知，知识本身就是很简单的。</p>
+<p>下一步就是使用梯度下降来进行优化。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920102154856.png" alt="image-20220920102154856" style="zoom:50%;">
+
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920102425780.png" alt="image-20220920102425780" style="zoom:50%;">
+
+<p>记住每一个单词都有两个向量表示。 u和 v都是从随机向量开始进行初始化的。通过梯度下降和迭代，我们可以对以上的参数进行系统的优化。</p>
+<h1 id="Assignment-1"><a href="#Assignment-1" class="headerlink" title="Assignment 1"></a>Assignment 1</h1><p>参考课程网站：<a target="_blank" rel="noopener" href="https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/">https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1194/</a></p>
+<h1 id="Assignment-2"><a href="#Assignment-2" class="headerlink" title="Assignment 2"></a>Assignment 2</h1><p>习题课可以参考如下的网站：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/114534537">https://zhuanlan.zhihu.com/p/114534537</a></p>
+<p>果然可以通过作业的方式，尤其是公式推导本身。可以加深对于一个问题的理解。</p>
+<h1 id="2-Word-Vectors-and-Word-Senses"><a href="#2-Word-Vectors-and-Word-Senses" class="headerlink" title="2 Word Vectors and Word Senses"></a>2 Word Vectors and Word Senses</h1><p>本讲梗概～</p>
+<p>Word2Vec模型实际上分为了两个部分，<strong>第一部分为建立模型，第二部分是通过模型获取嵌入词向量。</strong>Word2Vec的整个建模过程实际上与自编码器（auto-encoder）的思想很相似，即先基于训练数据构建一个神经网络，当这个模型训练好以后，我们并不会用这个训练好的模型处理新的任务，我们真正需要的是这个模型通过训练数据所学得的参数，例如隐层的权重矩阵——后面我们将会看到这些权重在Word2Vec中实际上就是我们试图去学习的“word vectors”。基于训练数据建模的过程，我们给它一个名字叫“Fake Task”，意味着建模并不是我们最终的目的。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920113017052.png" alt="image-20220920113017052" style="zoom:50%;">
+
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920125851916.png" alt="image-20220920125851916" style="zoom:50%;">
+
+<p> 对梯度下降进行回顾。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920130809766.png" alt="image-20220920130809766" style="zoom:50%;">
+
+<p>引入反向传播的概念。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920131058842.png" alt="image-20220920131058842" style="zoom:50%;">
+
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220920133826011.png" alt="image-20220920133826011" style="zoom:50%;">
+
+<p>Skip-grams，通过中心词来预测上下文。</p>
+<p>CBOW，即通过上下文来预测中心词。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921124449491.png" alt="image-20220921124449491" style="zoom:50%;">
+
+<p> 从高维空间投影到二维空间是会丢失很多信息的。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921095527002.png" alt="image-20220921095527002" style="zoom:50%;">
+
+<p>什么是negative sample.</p>
+ <img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921100046062.png" alt="image-20220921100046062" style="zoom:50%;">
+
+<p>如果对所有的语料进行计算梯度，再对参数进行更新，将是一个计算量巨大的操作。那么每一次的更新都会有非常久的时间。</p>
+<p>解决方法是，框定一个window，然后只计算一个window内的梯度。mini batch ,采用数量32或者64，会有很好的加速效果。也就是说，每次选取一个batch的数据量进行梯度更新，下次再选择另一个batch进行更新。</p>
+<p>这也带来了新的问题。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921101647658.png" alt="image-20220921101647658" style="zoom:50%;">
+
+<p>  因为一个窗口内的单词数量有限，且一个mini-batch内的单词数量也不会太多。这就会导致上面那个梯度矩阵大部分的元素都是0。因为很多单词根本不会出现！所以我们只需要对一件出现的单词向量进行更新。</p>
+<p><u>Q：这里的window到底是什么意思？和mini batchi之间有何关联和区别呢？</u></p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921102112090.png" alt="image-20220921102112090" style="zoom:50%;">
+
+<p>关于word2vec的更多细节。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921102445901.png" alt="image-20220921102445901" style="zoom:50%;">
+
+<p>Q：为什么一个单词要对应两个向量呢？一个向量不可以吗？</p>
+<p>如果使用一个向量的话，会带来额外的计算量？虽然最后可以通过平均的方式，将两个向量统一成一个向量&#x2F;</p>
+<p>关于Naive Softmax</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921103812719.png" alt="image-20220921103812719" style="zoom:50%;">
+
+<p>Negative sampling的主要思想：训练二元的逻辑回归，对于正样例（中心词和在它的上下文窗口出现的词），以及负样例（中心词和一个随机出现的词）。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921104154303.png" alt="image-20220921104154303" style="zoom:50%;">
+
+<p>sigmoid函数很像是softmax函数的二进制形式。 </p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921105252787.png" alt="image-20220921105252787" style="zoom:50%;">
+
+<p>$u_o$代表正采样，$u_k$代表负采样。会选择共计k个负样本。</p>
+<p>在采样的过程中，高频的词汇可能更可能被采样。故采用unigram ditribution的方法，来降低高频词汇被采样的概率。关于对高频词汇的抽样：</p>
+<p>但是对于“the”这种常用高频单词，这样的处理方式会存在下面两个问题：</p>
+<ol>
+<li>当我们得到成对的单词训练样本时，(“fox”, “the”) 这样的训练样本并不会给我们提供关于“fox”更多的语义信息，因为“the”在每个单词的上下文中几乎都会出现。</li>
+<li>由于在文本中“the”这样的常用词出现概率很大，因此我们将会有大量的（”the“，…）这样的训练样本，而这些样本数量远远超过了我们学习“the”这个词向量所需的训练样本数。</li>
+</ol>
+<p>Word2Vec通过“抽样”模式来解决这种高频词问题。它的基本思想如下：对于我们在训练原始文本中遇到的每一个单词，它们都有一定概率被我们从文本中删掉，而这个被删除的概率与单词的频率有关。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921125326309.png" alt="image-20220921125326309" style="zoom:50%;">
+
+<p>How and Why?</p>
+<p>Z通常代表normalization。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921125907085.png" alt="image-20220921125907085" style="zoom:50%;">
+
+<p>用了很对tricks来使模型效果提升了。 </p>
+<h2 id="3-But-why-not-capture-co-occurence-counts-directly"><a href="#3-But-why-not-capture-co-occurence-counts-directly" class="headerlink" title="3 But why not capture co-occurence counts directly?"></a>3 But why not capture co-occurence counts directly?</h2><img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921130350145.png" alt="image-20220921130350145" style="zoom:50%;">
+
+  
+
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921135040275.png" alt="image-20220921135040275" style="zoom:50%;">
+
+<p>共现矩阵，就是用来统计不同的词汇同时出现的次数。 </p>
+<p>以下面的语料为例子，且设置window length为1。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921135304249.png" alt="image-20220921135304249" style="zoom:50%;">
+
+<p>我们可以获得如下所示的，Window based co-occurrence matrix   。 由此可以看到，获得了一个及其稀疏的矩阵。 随着词汇量的增加，会导致该矩阵的体量非常之庞大。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921135412961.png" alt="image-20220921135412961" style="zoom:50%;">
+
+<p>因而为了应对矩阵的稀疏问题，我们需要寻找方法来对矩阵进行降低维度。通常会想要将维度降低到25-1000维，类似于Word2vec 。</p>
+<p>那么，该怎么降低维度呢？</p>
+<p><strong><u>Method1 SVD</u></strong></p>
+<p>通过Singular Value Decomposition(SVD)方法对X矩阵进行分解。U矩阵和V矩阵是对应于行和列的正交基。  $\sum$对应奇异值的对角矩阵。</p>
+<p>为了减少尺度同时尽量保存有效信息，可保留对角矩阵的最大的k个值，其余置零，并将酉矩阵的相应的行列保留，其余置零。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921143942551.png" alt="image-20220921143942551" style="zoom:50%;">
+
+<p>关于SVD基本原理的介绍可以参考这篇文章：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_58535145/article/details/122651843">https://blog.csdn.net/qq_58535145/article/details/122651843</a></p>
+<p>SVD的性质概括：对于奇异值，它跟我们特征分解中的特征值类似,在奇异值矩阵中也是按照从大到小排列,而且奇异值的减少特别的快，在很多情况下,前10%甚至1 %的奇异值的和就占了全部的奇异值之和的99%以上的比例。也就是说,我们也可以用最大的k个的奇异值和对应的左右奇异向量来近似描述矩阵。由于这个重要的性质，SVD可以用于PCA降维，来做数据压缩和去噪。也可以用于推荐算法，将用户和喜好对应的矩阵做特征分解，进而得到隐含的用户需求来做推荐。同时也可以用于NLP中的算法，比如潜在语义索引(LSI) 。</p>
+<p>实际上SVD在PCA降维上只是使用了U矩阵（左奇异矩阵），其原因就是U矩阵（左奇异矩阵）是进行列压缩，而V矩阵（右奇异矩阵）是对行进行压缩，而PCA降维只需要减少特征从而进行降维，所以PCA只用到了SVD的U矩阵（左奇异矩阵）。具体解释可参照上文推导过程（左奇异矩阵的由来）</p>
+<p><u>Method2 Hacks to X</u></p>
+<p>核心思想是Scaling the counts in the Cells can help a lot。即通过调整计数的方式。</p>
+<p>所需要应对的问题：过于频繁的组合，句法产生了过多的影响。</p>
+<p>对高频词进行缩放：</p>
+<ol>
+<li>使用log进行缩放</li>
+<li>min(x,t), t &#x3D; 100</li>
+<li>直接全部忽视</li>
+</ol>
+ <img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921144821185.png" alt="image-20220921144821185" style="zoom:50%;">
+
+<p> 某学者通过控制空间。通过对向量的方向上观察，出现了一些有趣的现象，如上图中的DRIVE的方向就指向了DRIVER，LEARN指向TEACHER  。就很明显有一个对比Analogy 。</p>
+<h2 id="Count-based-vs-direct-predition"><a href="#Count-based-vs-direct-predition" class="headerlink" title="Count based vs. direct predition"></a>Count based vs. direct predition</h2><img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921145939680.png" alt="image-20220921145939680" style="zoom:50%;">
+
+<p>基于计数的方案，训练很迅速且有效地利用统计学信息。但是这些方案最初只是用于描述单词的相似性的。且由于统计的原因，部分单词的重要性是不成比例的。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220921150254741.png" alt="image-20220921150254741" style="zoom:50%;">
+
+<p>然后就是直接进行预测的方案。代表有神经网络等。可以额外捕获一些除了词汇相似性的信息，且在其他任务上也可以表现良好。但是并没有直接利用统计学信息。</p>
+<h2 id="GloVe模型"><a href="#GloVe模型" class="headerlink" title="GloVe模型"></a>GloVe模型</h2><p>具体可以参考论文描述。现任务就是快速过完CS224n。</p>
+<h1 id="3-Neural-Networks"><a href="#3-Neural-Networks" class="headerlink" title="3 Neural Networks"></a>3 Neural Networks</h1><h2 id="3-1-Classification-setup-and-notation"><a href="#3-1-Classification-setup-and-notation" class="headerlink" title="3.1 Classification setup and notation"></a>3.1 Classification setup and notation</h2><p>通常而言，我们会有一组训练集，里面有很多的训练样例组成。如：${ {x_i,y_i}}^N_{i&#x3D;1}$</p>
+<p>$x_i$可以是words，sentences, documents的向量。假设维度是$d$ 。</p>
+<p>$y_i$则对应于labels，对应想要进行分类任务的类别。 </p>
+<h3 id="3-1-1-Classification-intuition"><a href="#3-1-1-Classification-intuition" class="headerlink" title="3.1.1 Classification intuition"></a>3.1.1 Classification intuition</h3><p>训练数据：${ {x_i,y_i}}^N_{i&#x3D;1}$</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220923103150667.png" alt="image-20220923103150667" style="zoom:50%;">
+
+<p>目标为对图中红色和绿色的点进行分类，其中那条分界线就是我们学习到的分类器。</p>
+<p>传统的ML&#x2F;statistic方法：假设$x_i$是固定的。假设$x_i$是$d$维向量，且需要分$C$个类别。需要进行训练的参数为Softmax或者logistic regression的权重$W\in{\R}^{C\times d}$</p>
+<h3 id="3-1-2-Details-of-the-softmax-classifier"><a href="#3-1-2-Details-of-the-softmax-classifier" class="headerlink" title="3.1.2 Details of the softmax classifier"></a>3.1.2 Details of the softmax classifier</h3><p>$p(y|x)&#x3D; \frac{exp(W_yx)}{\sum_{i&#x3D;1}^C exp(W_c x)}$</p>
+<p>该预测函数主要分为两步：</p>
+<ol>
+<li>将$W$的 $y^{th}$行和 $x$相乘，就获得对应 $y^{th}$的类别概率。$W_y x &#x3D; \sum <em>{i&#x3D;1} ^d W</em>{y_i} x_i &#x3D; f_y$</li>
+<li>对所有类别的结果进行一个softmax。$p(y|x)&#x3D;\frac{exp(f_y)}{\sum ^C _{c&#x3D;1} exp(f_c)}$</li>
+</ol>
+<h3 id="3-1-3-Training-with-softmax-and-cross-entropy-loss"><a href="#3-1-3-Training-with-softmax-and-cross-entropy-loss" class="headerlink" title="3.1.3 Training with softmax and cross-entropy loss"></a>3.1.3 Training with softmax and cross-entropy loss</h3><p>Q：为什么必须使用cross-entropy loss?</p>
+<p>对于训练样本$(x,y)$，我们的目标即为最大化$y$，即正确类别的概率。或者我们可以最小化下面这个概率：</p>
+<p>$-\log p(y|x) &#x3D; -\log (\frac{exp(f_y)}{\sum^C_{c&#x3D;1}exp(f_c)})$</p>
+<p>交叉熵的概念来源于信息论。假设：真实的概率分布是$p$，我们通过模型计算出的概率分布是$q$。</p>
+<p>交叉熵为：$H(p,q)&#x3D; -\sum^C_{c&#x3D;1}p(c)\log q(c)$</p>
+<p>可以看出，模型计算出的概率分布如果和真实的概率分布越接近，交叉熵就越小。</p>
+<h3 id="3-1-4-Classicication-over-a-full-dataset"><a href="#3-1-4-Classicication-over-a-full-dataset" class="headerlink" title="3.1.4 Classicication over a full dataset"></a>3.1.4 Classicication over a full dataset</h3><p>当对一整个数据集计算交叉熵的时候，只需要取均值。如对数据集${x_i,y_i}^N_{i&#x3D;1}$ 计算交叉熵：</p>
+<p>$J(\theta)&#x3D;\frac{1}{N}\sum^N_{i&#x3D;1}-\log(\frac{e^{f_{y_i}}}{\sum^C_{c&#x3D;1}e^{f_c}})$</p>
+<h3 id="3-1-5-Traditional-ML-optimization"><a href="#3-1-5-Traditional-ML-optimization" class="headerlink" title="3.1.5 Traditional ML optimization"></a>3.1.5 Traditional ML optimization</h3><p>通常机器学习的参数$\theta$是由权重$W$的列组成的。</p>
+<p>$\theta &#x3D; \left[\begin{matrix} W_{.1}\.\.\.\W_{.d} \end{matrix}\right] &#x3D; W\left(\begin{matrix} .\.\end{matrix}\right) \in \R^{Cd}$</p>
+<p>通过梯度对参数集进行更新。</p>
+<p>$\nabla_\theta J(\theta)&#x3D; \left[ \begin{matrix} \nabla_{W_{.1}} \ . \ . \ .\ \nabla_{W_{.d}}\end{matrix}\right] \in \R^{Cd}$</p>
+<h2 id="4-Neural-Networks-Classifiers"><a href="#4-Neural-Networks-Classifiers" class="headerlink" title="4 Neural Networks Classifiers"></a>4 Neural Networks Classifiers</h2><p>传统分类器的弊端：Softmax并不是非常有效，且Softmax只能给出一个线性的决策边界。</p>
+<p>当碰到复杂的问题时会存在诸多限制。如下图所示，用线性的决策边界很难讲两个类别分开。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220923135059407.png" alt="image-20220923135059407" style="zoom:25%;">
+
+<p>Neural Network会产生更复杂的边界。如下图所示：</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220923135020524.png" alt="image-20220923135020524" style="zoom:50%;">
+
+<h3 id="4-1-Classification-difference-with-word-vectors"><a href="#4-1-Classification-difference-with-word-vectors" class="headerlink" title="4.1 Classification difference with word vectors"></a>4.1 Classification difference with word vectors</h3><p>在NLP领域，通常：既需要学习参数$W$也需要学习向量$x$，除去对参数本身对优化，还需要不断优化对<strong>单词本身的表示</strong>。由此需要学习的参数是大量的。</p>
+<p>$\nabla_\theta J(\theta)&#x3D; \left[ \begin{matrix} \nabla_{W_{.1}} \ . \ . \ .\ \nabla_{W_{.d}}\end{matrix}\right] \in \R^{Cd+Vd}$</p>
+<p><u>其中$Vd$包含了巨大的参数量</u>。</p>
+<p>一部分是要<u>学习单词本身的表示</u>，另一部分是来研究更深更多样的<u>深度网络</u>。</p>
+<h3 id="4-2-Neural-computation"><a href="#4-2-Neural-computation" class="headerlink" title="4.2 Neural computation"></a>4.2 Neural computation</h3><img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220923140218450.png" alt="image-20220923140218450" style="zoom:50%;">
+
+<p> 以上是神经元的图片。 类比于人工神经网络的构建，如下图所示。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220923140554920.png" alt="image-20220923140554920" style="zoom:50%;">
+
+<h3 id="4-3-为什么需要非线性层？"><a href="#4-3-为什么需要非线性层？" class="headerlink" title="4.3 为什么需要非线性层？"></a>4.3 为什么需要非线性层？</h3><p> 如果没有非线形层，所有的线性变化都可以等价于一个线性变换。</p>
+<p>一个线性变换就是以某种方式旋转和拉伸空间 ，叠加之后依然还是对空间的变换。</p>
+<p>如果我们引入了非线形层，就给了神经网络更多的可能，才能够学习一些弯曲的决策边界。</p>
+<h2 id="5-Named-Entity-Recognition-NER"><a href="#5-Named-Entity-Recognition-NER" class="headerlink" title="5 Named Entity Recognition(NER)"></a>5 Named Entity Recognition(NER)</h2><p>  需要等把反向传播全部看完再进行处理。现在属于是更新了全新的无声键鼠，可以优雅且高效地进行一整个写代码的工作。这部分的理论基础并不是十分清晰，在完成一整个课程主干之后，再对反向传播进行系统的复习。</p>
+<h1 id="5-反向传播back-propagation"><a href="#5-反向传播back-propagation" class="headerlink" title="5 反向传播back propagation"></a>5 反向传播back propagation</h1><p>必须了解很多的训练技巧。以让你的模型可以适应更多的应用场景。</p>
+<h2 id="5-1-Derivate-wrt-a-weight-matrix"><a href="#5-1-Derivate-wrt-a-weight-matrix" class="headerlink" title="5.1 Derivate wrt a weight matrix"></a>5.1 Derivate wrt a weight matrix</h2><p>首先回顾计算$\frac{\partial s}{\partial W}$</p>
+<p>我们可以使用链式法则：$\frac{\partial s}{\partial W}&#x3D; \frac{\partial s}{\partial h} \frac{\partial h}{\partial z} \frac{\partial z}{\partial W}$</p>
+<h1 id="6-Dependency-parsing"><a href="#6-Dependency-parsing" class="headerlink" title="6 Dependency parsing"></a>6 Dependency parsing</h1><h2 id="6-1-Syntactic-Structure-Consistency-and-Dependency"><a href="#6-1-Syntactic-Structure-Consistency-and-Dependency" class="headerlink" title="6.1 Syntactic Structure: Consistency and Dependency"></a>6.1 Syntactic Structure: Consistency and Dependency</h2><h3 id="1-对于语言结构的两个观点"><a href="#1-对于语言结构的两个观点" class="headerlink" title="1 对于语言结构的两个观点"></a>1 对于语言结构的两个观点</h3><p>&#x3D;&#x3D;CFG&#x3D;&#x3D;</p>
+<p>Constituency &#x3D; phrase structure grammer &#x3D; context-free grammars(CFGs)</p>
+<p><u>context-free grammars (CFGs) 上下文无关文法</u></p>
+<p>  Phrase stucture: 就是将单词逐步组成一个嵌套的结构。</p>
+<p>可以逐步组成越来越复杂的结构。同时短语也可以递归组合成更大的短语。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926105556019.png" alt="image-20220926105556019" style="zoom:50%;">
+
+<ul>
+<li><p><code>Det</code> 指的是 <strong>Determiner</strong>，在语言学中的含义为 <strong>限定词</strong>，如the , a</p>
+</li>
+<li><p><code>NP</code> 指的是 <strong>Noun Phrase</strong> ，在语言学中的含义为 <strong>名词短语</strong></p>
+</li>
+<li><p><code>VP</code> 指的是 <strong>Verb Phrase</strong> ，在语言学中的含义为 <strong>动词短语</strong></p>
+</li>
+<li><p><code>P</code> 指的是 <strong>Preposition</strong> ，在语言学中的含义为 <strong>介词</strong></p>
+<ul>
+<li><code>PP</code> 指的是 <strong>Prepositional Phrase</strong> ，在语言学中的含义为 <strong>介词短语</strong></li>
+</ul>
+</li>
+<li><p><strong>NP→Det N</strong></p>
+</li>
+<li><p><strong>NP→Det (Adj) N</strong></p>
+</li>
+<li><p><strong>NP→Det (Adj) N PP</strong></p>
+<ul>
+<li>​	<strong>PP→P NP</strong></li>
+</ul>
+</li>
+<li><p><strong>VP→V PP</strong></p>
+<ul>
+<li>​	中文中，介词短语会出现在动词之前</li>
+</ul>
+</li>
+</ul>
+<p>Example : The cat by the large crate on the large table by the door</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926110629462.png" alt="image-20220926110629462" style="zoom:50%;">
+
+<p> 以上是占据绝对地位的语言结构模型。可以构建无限大的句子。</p>
+<p>&#x3D;&#x3D;Dependency structure&#x3D;&#x3D;</p>
+<p>依赖模型:重点在于展示单词和单词之间的依赖关系，例如哪个单词是修饰另一个单词的。</p>
+<p>  Dependency structures shows which words depend on( modify or are arguments of) which other words</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926111445388.png" alt="image-20220926111445388" style="zoom:50%;">
+
+<p>Q：为什么我们需要句子的结构？</p>
+<p>在不知道单词之间的依赖关系的前提下，往往会产生很多的歧义。如下面所列举的几个例子。</p>
+<p>Eg1:</p>
+<p>San Jose cops kill man with knife</p>
+<p>Eg2:</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926124509173.png" alt="image-20220926124509173" style="zoom:50%;">
+
+<p>Eg3:</p>
+ <img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926125221872.png" alt="image-20220926125221872" style="zoom:50%;">
+
+<p> 以上，在有了语法结构的基础上，我们可以更好地获取语意信息。</p>
+<h2 id="6-2-Dependency-Grammar-and-Treebanks"><a href="#6-2-Dependency-Grammar-and-Treebanks" class="headerlink" title="6.2 Dependency Grammar and Treebanks"></a>6.2 Dependency Grammar and Treebanks</h2><p>除了在上文中，可以在一句话中通过单词与单词之间的箭头的方式</p>
+<p><img src="/%E2%80%9CCS224n%E2%80%9D/image-20220926223011187.png" alt="image-20220926223011187"></p>
+<p>我们可以用树形结构来描述单词之间的联系关系。通过绘制箭头来确定单词之间的关系。</p>
+<img src="/2022/09/20/%E2%80%9CCS224n%E2%80%9D/image-20220926223206911.png" alt="image-20220926223206911" style="zoom:50%;">
+
+<p>古老的树形结构来描述语言结构，已经很有悠久的历史。人类语言的本质其实就是依赖语法。</p>
+<p>但是人们对于箭头指向并不是统一的。 </p>
+<p>Treebanks，找很多人来标注语法。</p>
+<h2 id="6-3-Transition-based-dependency-parsing"><a href="#6-3-Transition-based-dependency-parsing" class="headerlink" title="6.3 Transition-based dependency parsing"></a>6.3 Transition-based dependency parsing</h2><h2 id="6-4-Neual-Dependency-parsing"><a href="#6-4-Neual-Dependency-parsing" class="headerlink" title="6.4 Neual Dependency parsing"></a>6.4 Neual Dependency parsing</h2>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/09/10/%E6%B9%98%E9%9B%85%E5%8F%A3%E8%85%94%E5%88%86%E7%B1%BB%E4%BB%BB%E5%8A%A1/" rel="prev" title="湘雅口腔分类任务实验记录">
+                  <i class="fa fa-chevron-left"></i> 湘雅口腔分类任务实验记录
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/09/28/tabular-learning-artical/" rel="next" title="tabular learning artical">
+                  tabular learning artical <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Leiouisacat</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+  <script src="/js/third-party/pace.js"></script>
+
+  
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>
